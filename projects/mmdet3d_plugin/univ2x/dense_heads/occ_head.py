@@ -631,6 +631,7 @@ class OccHead(BaseModule):
                     "Ov": fusion_aux["Ov"][0].cpu().numpy().astype(np.uint8),
                     "Oi": fusion_aux["Oi"][0].cpu().numpy().astype(np.uint8),
                     "Oofficial": fusion_aux["Oofficial"][0].cpu().numpy().astype(np.uint8),
+                    "Ofused": fusion_aux["Ofused"][0].cpu().numpy().astype(np.uint8),
 
                     "GT": gt_occ[0].cpu().numpy().astype(np.int16),
 

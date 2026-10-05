@@ -1,0 +1,51 @@
+{
+  "mode": "official",
+  "heldout_scenes": [
+    "0007",
+    "0021",
+    "0071",
+    "0088"
+  ],
+  "total_forward": 116,
+  "num_occ": 92,
+  "metrics": {
+    "pq": [
+      3.105606697499752,
+      0.21192585118114948
+    ],
+    "sq": [
+      61.75379157066345,
+      62.822771072387695
+    ],
+    "rq": [
+      5.029013380408287,
+      0.3373392391949892
+    ],
+    "denominator": [
+      25850.0,
+      237150.0
+    ],
+    "iou": [
+      20.572704076766968,
+      28.336375951766968
+    ],
+    "num_occ": 92,
+    "total_forward": 116,
+    "ratio_occ": 0.7931034482758621
+  },
+  "scene_forward_counts": {
+    "0007": 30,
+    "0021": 38,
+    "0071": 41,
+    "0088": 7
+  },
+  "scene_valid_counts": {
+    "0007": 24,
+    "0021": 32,
+    "0071": 35,
+    "0088": 1
+  },
+  "official_checkpoint": "/root/autodl-tmp/UniV2X/ckpts/univ2x_coop_e2e_stg2.pth",
+  "stcv_checkpoint": null,
+  "tau": null
+}
