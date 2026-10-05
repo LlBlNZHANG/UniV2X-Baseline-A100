@@ -1,0 +1,85 @@
+====================================================================================================
+STCV-Occ V2-1 Magnitude-aware Utility Learning
+====================================================================================================
+Device          : cuda
+Train           : 86143
+Val             : 18555
+Test            : 14750
+Feature dim     : 127
+Target scale    : 100.0
+Lambda sign     : 0.25
+SmoothL1 beta   : 1.0
+
+Train positive  : 19743 (0.229189)
+Val positive    : 4876 (0.262786)
+Test positive   : 3188 (0.216136)
+
+Train magnitude std : 0.523137
+Val magnitude std   : 0.798943
+Test magnitude std  : 0.616545
+
+V1/V2 feature-target ordering alignment: PASS
+Parameters      : 495,490
+Sign pos_weight : 3.363217
+Epoch 001 | train_total=0.377767 | train_mag=0.129018 | train_sign=0.994998 | val_total=0.434414 | val_MAE=0.371353 | val_Pearson=0.136672 | val_AUROC=0.682637 | val_AUPRC=0.429595
+Epoch 002 | train_total=0.317853 | train_mag=0.084925 | train_sign=0.931709 | val_total=0.440213 | val_MAE=0.394668 | val_Pearson=0.207139 | val_AUROC=0.703163 | val_AUPRC=0.476812
+Epoch 003 | train_total=0.312041 | train_mag=0.082982 | train_sign=0.916236 | val_total=0.422003 | val_MAE=0.367961 | val_Pearson=0.208953 | val_AUROC=0.706845 | val_AUPRC=0.478733
+Epoch 004 | train_total=0.305984 | train_mag=0.080577 | train_sign=0.901626 | val_total=0.423347 | val_MAE=0.360609 | val_Pearson=0.236307 | val_AUROC=0.712387 | val_AUPRC=0.488658
+Epoch 005 | train_total=0.300400 | train_mag=0.079038 | train_sign=0.885449 | val_total=0.418592 | val_MAE=0.355092 | val_Pearson=0.261723 | val_AUROC=0.711004 | val_AUPRC=0.486816
+Epoch 006 | train_total=0.296661 | train_mag=0.078477 | train_sign=0.872736 | val_total=0.427387 | val_MAE=0.381324 | val_Pearson=0.277346 | val_AUROC=0.722244 | val_AUPRC=0.488798
+Epoch 007 | train_total=0.292888 | train_mag=0.076983 | train_sign=0.863621 | val_total=0.447088 | val_MAE=0.362274 | val_Pearson=0.224123 | val_AUROC=0.698499 | val_AUPRC=0.448266
+Epoch 008 | train_total=0.286744 | train_mag=0.075385 | train_sign=0.845434 | val_total=0.427752 | val_MAE=0.363495 | val_Pearson=0.287706 | val_AUROC=0.726852 | val_AUPRC=0.492721
+Epoch 009 | train_total=0.282034 | train_mag=0.074292 | train_sign=0.830969 | val_total=0.417687 | val_MAE=0.357796 | val_Pearson=0.297491 | val_AUROC=0.718978 | val_AUPRC=0.474717
+Epoch 010 | train_total=0.278981 | train_mag=0.073343 | train_sign=0.822550 | val_total=0.424842 | val_MAE=0.369576 | val_Pearson=0.291820 | val_AUROC=0.726693 | val_AUPRC=0.481824
+Epoch 011 | train_total=0.274050 | train_mag=0.072034 | train_sign=0.808067 | val_total=0.461320 | val_MAE=0.383140 | val_Pearson=0.254478 | val_AUROC=0.715583 | val_AUPRC=0.461744
+Epoch 012 | train_total=0.269854 | train_mag=0.070857 | train_sign=0.795989 | val_total=0.475578 | val_MAE=0.424789 | val_Pearson=0.266936 | val_AUROC=0.710668 | val_AUPRC=0.453861
+Epoch 013 | train_total=0.273418 | train_mag=0.072142 | train_sign=0.805103 | val_total=0.433840 | val_MAE=0.361396 | val_Pearson=0.249948 | val_AUROC=0.715542 | val_AUPRC=0.457732
+Epoch 014 | train_total=0.263742 | train_mag=0.068927 | train_sign=0.779260 | val_total=0.426091 | val_MAE=0.368453 | val_Pearson=0.305444 | val_AUROC=0.725042 | val_AUPRC=0.476311
+Epoch 015 | train_total=0.260637 | train_mag=0.068272 | train_sign=0.769460 | val_total=0.448600 | val_MAE=0.379912 | val_Pearson=0.285949 | val_AUROC=0.719664 | val_AUPRC=0.457396
+Epoch 016 | train_total=0.257987 | train_mag=0.067121 | train_sign=0.763464 | val_total=0.439081 | val_MAE=0.365171 | val_Pearson=0.268486 | val_AUROC=0.709373 | val_AUPRC=0.444275
+Epoch 017 | train_total=0.257347 | train_mag=0.067633 | train_sign=0.758858 | val_total=0.451626 | val_MAE=0.365023 | val_Pearson=0.249849 | val_AUROC=0.710927 | val_AUPRC=0.449894
+Epoch 018 | train_total=0.249625 | train_mag=0.064903 | train_sign=0.738891 | val_total=0.463339 | val_MAE=0.373653 | val_Pearson=0.283192 | val_AUROC=0.722076 | val_AUPRC=0.455639
+Epoch 019 | train_total=0.248493 | train_mag=0.064891 | train_sign=0.734406 | val_total=0.459727 | val_MAE=0.396087 | val_Pearson=0.279657 | val_AUROC=0.730597 | val_AUPRC=0.467075
+
+Early stopping at epoch 19. Best epoch = 9
+
+Loaded best checkpoint: epoch=9, val_total_loss=0.417687
+
+==========================================================================================
+VALIDATION
+==========================================================================================
+mag_loss             : 0.160478
+sign_loss            : 1.028837
+total_loss           : 0.417687
+
+Magnitude
+mae                 : 0.357796
+rmse                : 0.762870
+pearson             : 0.297491
+mag_sign_accuracy   : 0.694853
+pred_mean           : 0.029768
+pred_std            : 0.236328
+target_mean         : 0.017518
+target_std          : 0.798943
+
+Sign
+auroc               : 0.718978
+auprc               : 0.474717
+accuracy            : 0.646295
+precision           : 0.399929
+recall              : 0.691345
+f1                  : 0.506727
+threshold           : 0.500000
+positive_rate_gt    : 0.262786
+positive_rate_pred  : 0.454271
+
+Validation-selected sign threshold: 0.5000
+
+====================================================================================================
+Saved checkpoint : /root/autodl-tmp/UniV2X/G0-G1-G2/V2/V2-1_magnitude_learning/checkpoints/main_lambda_0p25/best.pth
+Saved result     : /root/autodl-tmp/UniV2X/G0-G1-G2/V2/V2-1_magnitude_learning/results/main_lambda_0p25/summary.json
+Saved val preds  : /root/autodl-tmp/UniV2X/G0-G1-G2/V2/V2-1_magnitude_learning/results/main_lambda_0p25/val_predictions.npz
+
+TEST NOT EVALUATED (correct for model-selection stage).
+
+STCV-Occ V2-1 training finished.
