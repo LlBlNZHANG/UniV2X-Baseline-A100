@@ -1,0 +1,46 @@
+==============================================================================================================
+STCV-Occ V2-1E-1 Group-aware Set-IoU Refinement
+==============================================================================================================
+Device           : cuda
+Train groups     : 1721
+Val groups       : 438
+Train candidates : 86143
+Val candidates   : 18555
+Parameters       : 495,490
+Start checkpoint : /root/autodl-tmp/UniV2X/G0-G1-G2/V2/V2-1_magnitude_learning/checkpoints/main_lambda_0p50/best.pth
+Lambda sign      : 0.5
+Lambda set       : 0.0
+Temperature      : 0.25
+LR               : 0.0002
+
+Initial checkpoint:
+Val MAE=0.354367 | Pearson=0.298428 | AUROC=0.722781 | AUPRC=0.473434 | HardGroupIoU=0.363974 | Accept=0.331770
+Epoch-0 candidate | val_total=0.668979
+Epoch 001 | train_total=0.463695 | val_total=0.708073 | MAE=0.358898 | Pearson=0.289287 | AUPRC=0.464704 | HardGroupIoU=0.362887 | Accept=0.313447
+Epoch 002 | train_total=0.459884 | val_total=0.727681 | MAE=0.383089 | Pearson=0.289036 | AUPRC=0.455727 | HardGroupIoU=0.361810 | Accept=0.436917
+Epoch 003 | train_total=0.455617 | val_total=0.692975 | MAE=0.364716 | Pearson=0.293381 | AUPRC=0.472215 | HardGroupIoU=0.363560 | Accept=0.378874
+Epoch 004 | train_total=0.452800 | val_total=0.716838 | MAE=0.374233 | Pearson=0.283001 | AUPRC=0.464285 | HardGroupIoU=0.363219 | Accept=0.381892
+Epoch 005 | train_total=0.451665 | val_total=0.687004 | MAE=0.359093 | Pearson=0.290275 | AUPRC=0.473182 | HardGroupIoU=0.363653 | Accept=0.321369
+
+Early stopping at epoch 5; best epoch=0
+
+==============================================================================================================
+FINAL VALIDATION
+==============================================================================================================
+Best epoch       : 0
+Val total loss   : 0.668979
+Val MAE          : 0.354367
+Val RMSE         : 0.762655
+Val Pearson      : 0.298428
+Pred std         : 0.225122
+Val AUROC        : 0.722781
+Val AUPRC        : 0.473434
+Hard group IoU   : 0.363974
+Accept rate      : 0.331770
+Soft gain pp     : 1.676711
+
+Saved checkpoint : /root/autodl-tmp/UniV2X/G0-G1-G2/V2/V2-1_magnitude_learning/checkpoints/set_refine_lambda_0p0/best.pth
+Saved result dir : /root/autodl-tmp/UniV2X/G0-G1-G2/V2/V2-1_magnitude_learning/results/set_refine_lambda_0p0
+
+TEST NOT EVALUATED.
+V2-1E-1 refinement finished.

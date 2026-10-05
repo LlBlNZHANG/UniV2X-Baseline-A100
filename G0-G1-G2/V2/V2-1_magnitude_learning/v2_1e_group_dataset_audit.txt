@@ -1,0 +1,54 @@
+==============================================================================================================
+STCV-Occ V2-1E-0 GROUP DATASET CONSTRUCTION
+==============================================================================================================
+
+==============================================================================================================
+TRAIN GROUP AUDIT
+==============================================================================================================
+Candidates             : 86143
+Groups with candidates : 1721
+Mean patches / group   : 50.0540
+Median patches / group : 47.0
+Min patches / group    : 1
+Max patches / group    : 168
+Groups with D=0        : 2
+Positive targets       : 19743 (0.229189)
+Group ordering audit   : PASS
+Candidate alignment    : PASS
+Saved                  : /root/autodl-tmp/UniV2X/G0-G1-G2/V2/V2-1_magnitude_learning/v2_1e_group_train.npz
+
+==============================================================================================================
+VAL GROUP AUDIT
+==============================================================================================================
+Candidates             : 18555
+Groups with candidates : 438
+Mean patches / group   : 42.3630
+Median patches / group : 39.5
+Min patches / group    : 1
+Max patches / group    : 124
+Groups with D=0        : 0
+Positive targets       : 4876 (0.262786)
+Group ordering audit   : PASS
+Candidate alignment    : PASS
+Saved                  : /root/autodl-tmp/UniV2X/G0-G1-G2/V2/V2-1_magnitude_learning/v2_1e_group_val.npz
+
+==============================================================================================================
+TEST GROUP AUDIT
+==============================================================================================================
+Candidates             : 14750
+Groups with candidates : 410
+Mean patches / group   : 35.9756
+Median patches / group : 31.0
+Min patches / group    : 1
+Max patches / group    : 132
+Groups with D=0        : 1
+Positive targets       : 3188 (0.216136)
+Group ordering audit   : PASS
+Candidate alignment    : PASS
+Saved                  : /root/autodl-tmp/UniV2X/G0-G1-G2/V2/V2-1_magnitude_learning/v2_1e_group_test.npz
+
+==============================================================================================================
+V2-1E-0 GROUP DATASET CONSTRUCTION COMPLETE
+==============================================================================================================
+No model was trained.
+No Test model performance was evaluated.

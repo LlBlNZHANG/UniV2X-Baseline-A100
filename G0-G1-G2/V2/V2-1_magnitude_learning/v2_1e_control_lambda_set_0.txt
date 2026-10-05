@@ -1,0 +1,50 @@
+==============================================================================================================
+STCV-Occ V2-1E-1 Group-aware Set-IoU Refinement
+==============================================================================================================
+Device           : cuda
+Train groups     : 1721
+Val groups       : 438
+Train candidates : 86143
+Val candidates   : 18555
+Parameters       : 495,490
+Start checkpoint : /root/autodl-tmp/UniV2X/G0-G1-G2/V2/V2-1_magnitude_learning/checkpoints/main_lambda_0p50/best.pth
+Lambda sign      : 0.5
+Lambda set       : 0.0
+Temperature      : 0.25
+LR               : 0.0002
+
+Initial checkpoint:
+Val MAE=0.354367 | Pearson=0.298428 | AUROC=0.722781 | AUPRC=0.473434 | HardGroupIoU=0.363974 | Accept=0.331770
+Epoch 001 | train_total=0.463695 | val_total=0.708073 | MAE=0.358898 | Pearson=0.289287 | AUPRC=0.464704 | HardGroupIoU=0.362887 | Accept=0.313447
+Epoch 002 | train_total=0.459884 | val_total=0.727681 | MAE=0.383089 | Pearson=0.289036 | AUPRC=0.455727 | HardGroupIoU=0.361810 | Accept=0.436917
+Epoch 003 | train_total=0.455617 | val_total=0.692975 | MAE=0.364716 | Pearson=0.293381 | AUPRC=0.472215 | HardGroupIoU=0.363560 | Accept=0.378874
+Epoch 004 | train_total=0.452800 | val_total=0.716838 | MAE=0.374233 | Pearson=0.283001 | AUPRC=0.464285 | HardGroupIoU=0.363219 | Accept=0.381892
+Epoch 005 | train_total=0.451665 | val_total=0.687004 | MAE=0.359093 | Pearson=0.290275 | AUPRC=0.473182 | HardGroupIoU=0.363653 | Accept=0.321369
+Epoch 006 | train_total=0.447296 | val_total=0.724940 | MAE=0.380398 | Pearson=0.280928 | AUPRC=0.450180 | HardGroupIoU=0.359162 | Accept=0.488386
+Epoch 007 | train_total=0.445221 | val_total=0.711440 | MAE=0.361665 | Pearson=0.281034 | AUPRC=0.463133 | HardGroupIoU=0.362725 | Accept=0.325465
+Epoch 008 | train_total=0.443715 | val_total=0.717182 | MAE=0.367565 | Pearson=0.282848 | AUPRC=0.460932 | HardGroupIoU=0.363318 | Accept=0.371005
+Epoch 009 | train_total=0.436521 | val_total=0.740558 | MAE=0.372752 | Pearson=0.267730 | AUPRC=0.458410 | HardGroupIoU=0.362993 | Accept=0.348531
+Epoch 010 | train_total=0.436959 | val_total=0.722250 | MAE=0.367271 | Pearson=0.271633 | AUPRC=0.458687 | HardGroupIoU=0.362904 | Accept=0.296578
+
+Early stopping at epoch 10; best epoch=5
+
+==============================================================================================================
+FINAL VALIDATION
+==============================================================================================================
+Best epoch       : 5
+Val total loss   : 0.687004
+Val MAE          : 0.359093
+Val RMSE         : 0.767068
+Val Pearson      : 0.290275
+Pred std         : 0.293730
+Val AUROC        : 0.725969
+Val AUPRC        : 0.473182
+Hard group IoU   : 0.363653
+Accept rate      : 0.321369
+Soft gain pp     : 1.915353
+
+Saved checkpoint : /root/autodl-tmp/UniV2X/G0-G1-G2/V2/V2-1_magnitude_learning/checkpoints/set_refine_lambda_0p0/best.pth
+Saved result dir : /root/autodl-tmp/UniV2X/G0-G1-G2/V2/V2-1_magnitude_learning/results/set_refine_lambda_0p0
+
+TEST NOT EVALUATED.
+V2-1E-1 refinement finished.
