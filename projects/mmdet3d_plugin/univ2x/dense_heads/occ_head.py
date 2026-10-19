@@ -271,7 +271,21 @@ class OccHead(BaseModule):
 
         return attn_mask, upsampled_mask_pred, ins_embed
 
-    def forward(self, x, ins_query):
+    def forward(self, x, ins_query, return_occ_feature=False):
+        """
+        Args:
+            x:                  [(h*w), b, d]  BEV feature
+            ins_query:          [b, q, d]      instance queries
+            return_occ_feature: bool (default False).
+                When True, additionally returns dense_occ_feat [b, T, C, H, W]
+                from the dense_decoder output, for use by V2-4D Innovation-3.
+                Default False preserves the original two-tuple return.
+
+        Returns (return_occ_feature=False):
+            mask_preds, ins_occ_logits
+        Returns (return_occ_feature=True):
+            mask_preds, ins_occ_logits, dense_occ_feat
+        """
         base_state = rearrange(x, '(h w) b d -> b d h w', h=self.bev_size[0])
 
         base_state = self.bev_sampler(base_state)
@@ -287,7 +301,7 @@ class OccHead(BaseModule):
         temporal_embed_for_mask_attn = []
         n_trans_layer_each_block = self.num_trans_layers // self.n_future_blocks
         assert n_trans_layer_each_block >= 1
-        
+
         for i in range(self.n_future_blocks):
             # Downscale
             cur_state = self.downscale_convs[i](last_state)  # /4 -> /8
@@ -297,9 +311,9 @@ class OccHead(BaseModule):
             cur_ins_query = self.temporal_mlps[i](last_ins_query)  # [b, q, d]
             temporal_query.append(cur_ins_query)
 
-            # Generate attn mask 
+            # Generate attn mask
             attn_mask, mask_pred, cur_ins_emb_for_mask_attn = self.get_attn_mask(cur_state, cur_ins_query)
-            attn_masks = [None, attn_mask] 
+            attn_masks = [None, attn_mask]
 
             mask_preds.append(mask_pred)  # /1
             temporal_embed_for_mask_attn.append(cur_ins_emb_for_mask_attn)
@@ -314,7 +328,7 @@ class OccHead(BaseModule):
                     query=cur_state,  # [h'*w', b, c]
                     key=cur_ins_query,  # [nq, b, c]
                     value=cur_ins_query,  # [nq, b, c]
-                    query_pos=None,  
+                    query_pos=None,
                     key_pos=None,
                     attn_masks=attn_masks,
                     query_key_padding_mask=None,
@@ -322,7 +336,7 @@ class OccHead(BaseModule):
                 )  # out size: [h'*w', b, c]
 
             cur_state = rearrange(cur_state, '(h w) b c -> b c h w', h=self.bev_size[0]//8)
-            
+
             # Upscale to /4
             cur_state = self.upsample_adds[i](cur_state, last_state)
 
@@ -336,7 +350,7 @@ class OccHead(BaseModule):
         ins_query = torch.stack(temporal_embed_for_mask_attn, dim=1)  # [b, t, q, d]
 
         # Decode future states to larger resolution
-        future_states = self.dense_decoder(future_states)
+        future_states = self.dense_decoder(future_states)  # [b, t, c, H, W]
         ins_occ_query = self.query_to_occ_feat(ins_query)    # [b, t, q, query_out_dim]
 
         # old_mode: same as UniAD
@@ -351,6 +365,9 @@ class OccHead(BaseModule):
                 probs.append(p)
             ins_occ_logits = torch.stack(probs, dim=1).permute(0, 2, 1, 3, 4) # [b, 1, t, h, w]
 
+        if return_occ_feature:
+            # future_states: [b, T, C, H, W] — dense_decoder output, used by Innovation-3
+            return mask_preds, ins_occ_logits, future_states
         return mask_preds, ins_occ_logits
 
     def merge_queries(self, outs_dict, detach_query_pos=True):
@@ -376,16 +393,23 @@ class OccHead(BaseModule):
                     gt_segmentation=None,
                     gt_instance=None,
                     gt_img_is_valid=None,
+                    return_occ_feature=False,
                 ):
         # Generate warpped gt and related inputs
         gt_segmentation, gt_instance, gt_img_is_valid = self.get_occ_labels(gt_segmentation, gt_instance, gt_img_is_valid)
-        
+
         all_matched_gt_ids = outs_dict['all_matched_idxes']  # list of tensor, length bs
 
         ins_query = self.merge_queries(outs_dict, self.detach_query_pos)
 
         # Forward the occ-flow model
-        mask_preds_batch, ins_seg_preds_batch = self(bev_feat, ins_query=ins_query)
+        # V2-4D: when return_occ_feature=True, also return dense_decoder output
+        # for use by Innovation-3 Learnable Fusion Module.
+        if return_occ_feature:
+            mask_preds_batch, ins_seg_preds_batch, dense_occ_feat = self(
+                bev_feat, ins_query=ins_query, return_occ_feature=True)
+        else:
+            mask_preds_batch, ins_seg_preds_batch = self(bev_feat, ins_query=ins_query)
         
         # Get pred and gt
         ins_seg_targets_batch  = gt_instance # [1, 5, 200, 200] [b, t, h, w] # ins targets of a batch
@@ -489,6 +513,9 @@ class OccHead(BaseModule):
         loss_dict['loss_aux_dice'] = loss_aux_dice / bs
         loss_dict['loss_aux_mask'] = loss_aux_mask / bs
 
+        if return_occ_feature:
+            # V2-4D: return dense_occ_feat [b, T, C, H, W] alongside losses
+            return loss_dict, dense_occ_feat
         return loss_dict
 
     def forward_test(
@@ -502,6 +529,7 @@ class OccHead(BaseModule):
                     w_label=True,
                     other_agent_results=None,
                     g012_meta=None,
+                    v2_4d_fusion_fn=None,
                 ):
         
         out_dict = dict()
@@ -511,13 +539,19 @@ class OccHead(BaseModule):
             out_dict['seg_gt']  = gt_segmentation[:, :1+self.n_future]  # [1, 5, 1, 200, 200]
             out_dict['ins_seg_gt'] = self.get_ins_seg_gt(gt_instance[:, :1+self.n_future])  # [1, 5, 200, 200]
 
+        dense_occ_feat = None  # V2-4D: will be populated when return_occ_feature=True
         if no_query:
-            b = outs_dict['track_scores'].shape[0] 
+            b = outs_dict['track_scores'].shape[0]
             q = outs_dict['track_scores'].shape[1]
             pred_ins_logits = torch.zeros([b,q,5,200,200]).to(bev_feat) # [b, q, t, h, w] hard code
         else:
             ins_query = self.merge_queries(outs_dict, self.detach_query_pos)
-            _, pred_ins_logits = self(bev_feat, ins_query=ins_query)
+            # V2-4D: request dense_occ_feat for Innovation-3 (ego cooperative agent only)
+            if self.is_ego_agent and self.is_cooperation:
+                _, pred_ins_logits, dense_occ_feat = self(
+                    bev_feat, ins_query=ins_query, return_occ_feature=True)
+            else:
+                _, pred_ins_logits = self(bev_feat, ins_query=ins_query)
 
         out_dict['pred_ins_logits'] = pred_ins_logits
 
@@ -569,6 +603,26 @@ class OccHead(BaseModule):
                 new_pred_seg_scores, new_inf_occ, fusion_aux = self.occ_prob_fusion(pred_seg_scores, other_agent_occ_data, other_agent_results[other_agent_name][0]['ego2other_rt'])   # [1, t, h, w]
                 pred_seg_scores = new_pred_seg_scores
         
+        # V2-4D: independent inference fusion before seg_out.
+        if v2_4d_fusion_fn is not None:
+            if not (self.is_ego_agent and self.is_cooperation):
+                raise RuntimeError("V2-4D requires cooperative Ego OccHead")
+            if self.use_stcv_occ:
+                raise RuntimeError(
+                    "V2-4D and historical STCV cannot run together"
+                )
+            if dense_occ_feat is None or fusion_aux is None:
+                raise RuntimeError(
+                    "V2-4D requires dense_occ_feat and real fusion_aux"
+                )
+
+            pred_seg_scores = v2_4d_fusion_fn(
+                dense_occ_feat=dense_occ_feat,
+                pv=fusion_aux["Pv"],
+                pi_aligned=fusion_aux["Pi_aligned"],
+                warp_valid=fusion_aux["warp_valid_mask"],
+            )
+
         seg_out = (pred_seg_scores > self.test_seg_thresh).long().unsqueeze(2)  # [b, t, 1, h, w]
         out_dict['seg_out'] = seg_out
         if self.pan_eval:

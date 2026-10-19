@@ -233,14 +233,35 @@ class UniV2X(UniV2XTrack):
                 outs_motion['track_query_pos'] = torch.zeros((1,1, 256)).to(bev_embed)
                 outs_motion['traj_query'] = torch.zeros((3, 1, 1, 6, 256)).to(bev_embed)
                 outs_motion['all_matched_idxes'] = [[-1]]
-            losses_occ = self.occ_head.forward_train(
-                            bev_embed, 
-                            outs_motion, 
-                            gt_inds_list=gt_inds,
-                            gt_segmentation=gt_segmentation,
-                            gt_instance=gt_instance,
-                            gt_img_is_valid=gt_occ_img_is_valid,
-                        )
+
+            # V2-4D: ego cooperative agent requests dense_occ_feat for Innovation-3
+            need_occ_feat = (
+                (self.is_ego_agent and self.is_cooperation)
+                or (
+                    (not self.is_ego_agent)
+                    and getattr(self.occ_head, "return_occ_data", False)
+                )
+            )
+            if need_occ_feat:
+                losses_occ, dense_occ_feat = self.occ_head.forward_train(
+                                bev_embed,
+                                outs_motion,
+                                gt_inds_list=gt_inds,
+                                gt_segmentation=gt_segmentation,
+                                gt_instance=gt_instance,
+                                gt_img_is_valid=gt_occ_img_is_valid,
+                                return_occ_feature=True,
+                            )
+            else:
+                losses_occ = self.occ_head.forward_train(
+                                bev_embed,
+                                outs_motion,
+                                gt_inds_list=gt_inds,
+                                gt_segmentation=gt_segmentation,
+                                gt_instance=gt_instance,
+                                gt_img_is_valid=gt_occ_img_is_valid,
+                            )
+                dense_occ_feat = None
             losses_occ = self.loss_weighted_and_prefixed(losses_occ, prefix='occ')
             losses.update(losses_occ)
         
@@ -259,6 +280,58 @@ class UniV2X(UniV2XTrack):
         if not self.is_ego_agent:
             univ2x_outs['univ2x_track_instances_list'] = outs_track['univ2x_track_instances_list']
             univ2x_outs['univ2x_lane_query_data'] = outs_seg['univ2x_lane_query_data']
+            # V2-4D: expose infrastructure soft occupancy during training.
+            # Reproduces the same representation used in forward_test().
+            if self.with_occ_head and dense_occ_feat is not None:
+                with torch.no_grad():
+                    _occ_logits = []
+                    for ti in range(1 + self.occ_head.n_future):
+                        _occ_logits.append(
+                            self.occ_head.pred_prob[ti](
+                                dense_occ_feat[:, ti, :, :, :]
+                            )
+                        )
+                    _occ_logits = (
+                        torch.stack(_occ_logits, dim=1)
+                        .permute(0, 2, 1, 3, 4)
+                    )
+                    _occ_prob = _occ_logits.squeeze(1).sigmoid()
+                univ2x_outs["occ"] = {
+                    "univ2x_occ_prob_data": _occ_prob[0]
+                }
+
+        # V2-4D: pass dense_occ_feat and GT to caller for Innovation-3 joint fine-tuning
+        if self.is_ego_agent and self.is_cooperation:
+            univ2x_outs['dense_occ_feat'] = dense_occ_feat if self.with_occ_head else None
+            # GT binary occupancy for online label computation: [1, T, 200, 200] int
+            # Process gt_segmentation same way occ_head.get_occ_labels does
+            if gt_segmentation is not None and self.with_occ_head:
+                try:
+                    import torch as _t
+                    # gt_segmentation arrives as list-of-list after scatter; unwrap
+                    gs = gt_segmentation[0] if isinstance(gt_segmentation, list) else gt_segmentation
+                    gs = gs[:, :self.occ_head.n_future + 1].long()  # [1, T, H, W]
+                    # V2-4D Valid-GT: preserve 0/1/255 encoding.
+                    univ2x_outs['gt_occ_binary'] = gs.detach()
+
+                    # Match the official OccHead temporal validity rule.
+                    fv = (
+                        gt_occ_img_is_valid[0]
+                        if isinstance(gt_occ_img_is_valid, list)
+                        else gt_occ_img_is_valid
+                    )
+                    assert fv is not None, "Valid-GT requires frame-valid flags"
+                    fv = fv[:, :self.occ_head.receptive_field + self.occ_head.n_future].bool()
+                    assert fv.shape[1] == self.occ_head.receptive_field + self.occ_head.n_future
+                    past_valid = fv[:, :self.occ_head.receptive_field].all(dim=1)
+                    future_valid = fv[:, self.occ_head.receptive_field - 1:].clone()
+                    future_valid[~past_valid] = False
+                    assert future_valid.shape == gs.shape[:2]
+                    univ2x_outs['gt_occ_frame_valid'] = future_valid.detach()
+                except Exception:
+                    univ2x_outs['gt_occ_binary'] = None
+            else:
+                univ2x_outs['gt_occ_binary'] = None
 
         return losses, univ2x_outs
     
@@ -288,6 +361,7 @@ class UniV2X(UniV2XTrack):
 
                      #for coop
                      other_agent_results=None,
+                     v2_4d_fusion_fn=None,
                      **kwargs
                     ):
         """Test function
@@ -384,6 +458,7 @@ class UniV2X(UniV2XTrack):
                 w_label=w_label,
                 other_agent_results=other_agent_results,
                 g012_meta=g012_meta,
+                v2_4d_fusion_fn=v2_4d_fusion_fn,
             )
 
             result[0]['occ'] = outs_occ
@@ -423,6 +498,145 @@ class UniV2X(UniV2XTrack):
                 result[0]['planning'] = dict(
                     result_planning=result_planning,
                 )
+
+            # ============================================================
+            # V2-2B Planning Counterfactual Cache Export
+            # Enabled only when STCV_PLAN_CACHE_DIR is set.
+            #
+            # IMPORTANT:
+            #   Run with use_col_optim=False.
+            #   Then result_planning['sdc_traj'] is T_raw, i.e. the
+            #   trajectory before collision/drivable post-processing.
+            # ============================================================
+            import os as _os
+            import numpy as _np
+
+            _plan_cache_dir = _os.environ.get("STCV_PLAN_CACHE_DIR", "")
+
+            if _plan_cache_dir and w_label:
+                _os.makedirs(_plan_cache_dir, exist_ok=True)
+
+                if not hasattr(self, "_stcv_plan_export_idx"):
+                    self._stcv_plan_export_idx = 0
+
+                _export_idx = int(self._stcv_plan_export_idx)
+                self._stcv_plan_export_idx += 1
+
+                def _to_numpy_v22b(x):
+                    # Unwrap common singleton wrappers used by the
+                    # UniV2X/MMCV data pipeline.
+                    while isinstance(x, (list, tuple)) and len(x) == 1:
+                        x = x[0]
+
+                    if torch.is_tensor(x):
+                        return x.detach().cpu().numpy()
+
+                    return _np.asarray(x)
+
+                _scene_token = img_metas[0].get("scene_token", "")
+                _sample_idx = img_metas[0].get("sample_idx", "")
+
+                if timestamp is None:
+                    _timestamp = _np.nan
+                elif torch.is_tensor(timestamp):
+                    _timestamp = float(
+                        timestamp.detach().cpu().reshape(-1)[0].item()
+                    )
+                else:
+                    _timestamp = float(timestamp)
+
+                _out_path = _os.path.join(
+                    _plan_cache_dir,
+                    f"sample_{_export_idx:05d}.npz"
+                )
+
+                _np.savez_compressed(
+                    _out_path,
+
+                    # -------------------------
+                    # Fixed raw planning output
+                    # -------------------------
+                    T_raw=_to_numpy_v22b(
+                        result_planning["sdc_traj"]
+                    ),
+
+                    # -------------------------
+                    # Fixed drivable prediction
+                    # -------------------------
+                    drivable_pred=_to_numpy_v22b(
+                        drivable_pred
+                    ),
+
+                    # -------------------------
+                    # Official planning GT
+                    # Keep raw structures here;
+                    # offline evaluator will reproduce
+                    # the exact slicing in apis/test.py.
+                    # -------------------------
+                    # Exactly reproduce the slicing used in
+                    # projects/mmdet3d_plugin/univ2x/apis/test.py
+                    sdc_planning_eval=_to_numpy_v22b(
+                        sdc_planning[0][
+                            0, :, :self.planning_head.planning_steps, :2
+                        ]
+                    ),
+                    sdc_planning_mask_eval=_to_numpy_v22b(
+                        sdc_planning_mask[0][
+                            0, :, :self.planning_head.planning_steps, :2
+                        ]
+                    ),
+                    gt_segmentation_eval=_to_numpy_v22b(
+                        gt_segmentation[0][
+                            :, 1:self.planning_head.planning_steps + 1
+                        ]
+                    ),
+                    drivable_gt=_to_numpy_v22b(
+                        drivable_gt
+                    ),
+                    command=_to_numpy_v22b(
+                        command
+                    ),
+
+                    # -------------------------
+                    # Alignment metadata
+                    # -------------------------
+                    export_idx=_np.asarray(
+                        _export_idx,
+                        dtype=_np.int64
+                    ),
+                    scene_token=_np.asarray(
+                        str(_scene_token)
+                    ),
+                    sample_idx=_np.asarray(
+                        str(_sample_idx)
+                    ),
+                    timestamp=_np.asarray(
+                        _timestamp,
+                        dtype=_np.float64
+                    ),
+
+                    # -------------------------
+                    # Runtime audit metadata
+                    # -------------------------
+                    planning_steps=_np.asarray(
+                        int(self.planning_head.planning_steps),
+                        dtype=_np.int64
+                    ),
+                    use_col_optim=_np.asarray(
+                        int(self.planning_head.use_col_optim),
+                        dtype=_np.int64
+                    ),
+                )
+
+                if _export_idx < 3:
+                    print(
+                        "[V2-2B CACHE]",
+                        _out_path,
+                        "T_raw",
+                        tuple(result_planning["sdc_traj"].shape),
+                        "use_col_optim",
+                        self.planning_head.use_col_optim,
+                    )
 
         pop_track_list = ['prev_bev', 'bev_pos', 'bev_embed', 'track_query_embeddings', 'sdc_embedding']
         result_track[0] = pop_elem_in_result(result_track[0], pop_track_list)
