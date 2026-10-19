@@ -1,0 +1,72 @@
+/root/autodl-tmp/UniV2X/projects/mmdet3d_plugin/univ2x/modules/custom_base_transformer_layer.py:77: UserWarning: The arguments `feedforward_channels` in BaseTransformerLayer has been deprecated, now you should set `feedforward_channels` and other FFN related arguments to a dict named `ffn_cfgs`. 
+  warnings.warn(
+/root/autodl-tmp/UniV2X/projects/mmdet3d_plugin/univ2x/modules/custom_base_transformer_layer.py:77: UserWarning: The arguments `ffn_dropout` in BaseTransformerLayer has been deprecated, now you should set `ffn_drop` and other FFN related arguments to a dict named `ffn_cfgs`. 
+  warnings.warn(
+/root/autodl-tmp/UniV2X/projects/mmdet3d_plugin/univ2x/modules/custom_base_transformer_layer.py:77: UserWarning: The arguments `ffn_num_fcs` in BaseTransformerLayer has been deprecated, now you should set `num_fcs` and other FFN related arguments to a dict named `ffn_cfgs`. 
+  warnings.warn(
+/root/miniconda3/lib/python3.8/site-packages/mmcv/cnn/bricks/transformer.py:341: UserWarning: The arguments `feedforward_channels` in BaseTransformerLayer has been deprecated, now you should set `feedforward_channels` and other FFN related arguments to a dict named `ffn_cfgs`. 
+  warnings.warn(
+/root/miniconda3/lib/python3.8/site-packages/mmcv/cnn/bricks/transformer.py:341: UserWarning: The arguments `ffn_dropout` in BaseTransformerLayer has been deprecated, now you should set `ffn_drop` and other FFN related arguments to a dict named `ffn_cfgs`. 
+  warnings.warn(
+/root/miniconda3/lib/python3.8/site-packages/mmcv/cnn/bricks/transformer.py:341: UserWarning: The arguments `ffn_num_fcs` in BaseTransformerLayer has been deprecated, now you should set `num_fcs` and other FFN related arguments to a dict named `ffn_cfgs`. 
+  warnings.warn(
+/root/miniconda3/lib/python3.8/site-packages/mmcv/cnn/bricks/transformer.py:92: UserWarning: The arguments `dropout` in MultiheadAttention has been deprecated, now you can separately set `attn_drop`(float), proj_drop(float), and `dropout_layer`(dict) 
+  warnings.warn('The arguments `dropout` in MultiheadAttention '
+==========================================================================================
+G5-1B: 86-Sample Sequential Consistency Sweep
+==========================================================================================
+
+Loading G3 Test metadata...
+  G3 Test samples       : 86
+  G3 Total candidates   : 14750
+
+Loading config and building dataset...
+======
+Loading NuScenes tables for version v1.0-trainval...
+4 category,
+0 attribute,
+4 visibility,
+4704 instance,
+4 sensor,
+2 calibrated_sensor,
+2196 ego_pose,
+6 log,
+67 scene,
+2196 sample,
+2196 sample_data,
+54171 sample_annotation,
+6 map,
+Done loading in 1.405 seconds.
+======
+Reverse indexing ...
+Done reverse indexing in 0.2 seconds.
+======
+  Dataset size          : 675
+WARNING!!!!, Only can be used for obtain inference speed!!!!
+
+Building model...
+[STCV-Occ] Loaded G3 checkpoint: /root/autodl-tmp/UniV2X/G0-G1-G2/G3/checkpoints_soft/g3_neighborhood_best.pth
+[STCV-Occ] Predictor parameters: 73985
+[STCV-Occ] Initialized with τ=0.7
+[OccHead] STCV-Occ enabled with τ=0.7
+load checkpoint from local path: /root/autodl-tmp/UniV2X/ckpts/univ2x_coop_e2e_stg2.pth
+The model and loaded state dict do not match exactly
+
+unexpected key in source state_dict: model_other_agent_inf.linear1.weight, model_other_agent_inf.linear1.bias, model_other_agent_inf.linear2.weight, model_other_agent_inf.linear2.bias, model_other_agent_inf.linear_feat1.weight, model_other_agent_inf.linear_feat1.bias, model_other_agent_inf.linear_feat2.weight, model_other_agent_inf.linear_feat2.bias, model_other_agent_inf.norm_feat.weight, model_other_agent_inf.norm_feat.bias, model_other_agent_inf.norm1.weight, model_other_agent_inf.norm1.bias, model_other_agent_inf.norm2.weight, model_other_agent_inf.norm2.bias, model_other_agent_inf.self_attn.in_proj_weight, model_other_agent_inf.self_attn.in_proj_bias, model_other_agent_inf.self_attn.out_proj.weight, model_other_agent_inf.self_attn.out_proj.bias
+
+missing keys in source state_dict: model_ego_agent.occ_head.stcv_occ.predictor.net.0.weight, model_ego_agent.occ_head.stcv_occ.predictor.net.0.bias, model_ego_agent.occ_head.stcv_occ.predictor.net.3.weight, model_ego_agent.occ_head.stcv_occ.predictor.net.3.bias, model_ego_agent.occ_head.stcv_occ.predictor.net.6.weight, model_ego_agent.occ_head.stcv_occ.predictor.net.6.bias, model_ego_agent.occ_head.stcv_occ.predictor.net.9.weight, model_ego_agent.occ_head.stcv_occ.predictor.net.9.bias
+
+  Model loaded successfully
+
+==========================================================================================
+SEQUENTIAL INFERENCE: 0 → 674 (675 samples)
+==========================================================================================
+
+Forward:   0%|          | 0/675 [00:00<?, ?sample/s]/root/autodl-tmp/UniV2X/projects/mmdet3d_plugin/core/bbox/coders/detr3d_track_coder.py:94: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  self.post_center_range = torch.tensor(
+/root/miniconda3/lib/python3.8/site-packages/torch/_tensor.py:575: UserWarning: floor_divide is deprecated, and will be removed in a future version of pytorch. It currently rounds toward 0 (like the 'trunc' function NOT 'floor'). This results in incorrect rounding for negative values.
+To keep the current behavior, use torch.div(a, b, rounding_mode='trunc'), or for actual floor division, use torch.div(a, b, rounding_mode='floor'). (Triggered internally at  ../aten/src/ATen/native/BinaryOps.cpp:467.)
+  return torch.floor_divide(self, other)
+/root/miniconda3/lib/python3.8/site-packages/torch/nn/functional.py:3609: UserWarning: Default upsampling behavior when mode=bilinear is changed to align_corners=False since 0.4.0. Please specify align_corners=True if the old behavior is desired. See the documentation of nn.Upsample for details.
+  warnings.warn(
+Forward:   0%|          | 1/675 [00:19<3:40:27, 19.63s/sample]Forward:   0%|          | 2/675 [00:23<1:58:07, 10.53s/sample]Forward:   0%|          | 3/675 [00:32<1:49:42,  9.80s/sample]Forward:   1%|          | 4/675 [00:35<1:18:09,  6.99s/sample]Forward:   1%|          | 5/675 [00:49<1:45:45,  9.47s/sample]Forward:   1%|          | 6/675 [00:52<1:21:33,  7.31s/sample]Forward:   1%|          | 7/675 [01:00<1:23:44,  7.52s/sample]Forward:   1%|          | 8/675 [01:03<1:06:36,  5.99s/sample]Forward:   1%|▏         | 9/675 [01:11<1:15:36,  6.81s/sample]Forward:   1%|▏         | 10/675 [01:14<1:01:07,  5.51s/sample]Forward:   2%|▏         | 11/675 [01:22<1:10:51,  6.40s/sample]Forward:   2%|▏         | 12/675 [01:25<58:06,  5.26s/sample]  Forward:   2%|▏         | 13/675 [01:34<1:09:34,  6.31s/sample]Forward:   2%|▏         | 14/675 [01:36<57:41,  5.24s/sample]  Forward:   2%|▏         | 15/675 [01:50<1:26:12,  7.84s/sample]Forward:   2%|▏         | 16/675 [01:53<1:09:42,  6.35s/sample]Forward:   3%|▎         | 17/675 [02:02<1:17:50,  7.10s/sample]Forward:   3%|▎         | 18/675 [02:05<1:03:47,  5.83s/sample]Forward:   3%|▎         | 19/675 [02:14<1:14:43,  6.83s/sample]Forward:   3%|▎         | 20/675 [02:17<1:01:25,  5.63s/sample]Forward:   3%|▎         | 21/675 [02:26<1:14:04,  6.80s/sample]Forward:   3%|▎         | 22/675 [02:30<1:02:28,  5.74s/sample]Forward:   3%|▎         | 23/675 [02:41<1:22:27,  7.59s/sample]Forward:   4%|▎         | 24/675 [02:45<1:08:36,  6.32s/sample]Forward:   4%|▎         | 25/675 [02:53<1:13:51,  6.82s/sample]Forward:   4%|▍         | 26/675 [02:56<1:00:36,  5.60s/sample]Forward:   4%|▍         | 27/675 [03:05<1:13:46,  6.83s/sample]Forward:   4%|▍         | 28/675 [03:08<1:00:37,  5.62s/sample]Forward:   4%|▍         | 29/675 [03:18<1:13:33,  6.83s/sample]Forward:   4%|▍         | 30/675 [03:21<1:00:25,  5.62s/sample]Forward:   5%|▍         | 31/675 [03:31<1:14:22,  6.93s/sample]Forward:   5%|▍         | 32/675 [03:33<1:00:56,  5.69s/sample]Forward:   5%|▍         | 33/675 [03:48<1:30:12,  8.43s/sample]Forward:   5%|▌         | 34/675 [03:51<1:13:30,  6.88s/sample]Forward:   5%|▌         | 35/675 [04:00<1:19:31,  7.46s/sample]Forward:   5%|▌         | 36/675 [04:03<1:05:20,  6.14s/sample]Forward:   5%|▌         | 37/675 [04:12<1:13:27,  6.91s/sample]Forward:   6%|▌         | 38/675 [04:15<1:00:17,  5.68s/sample]Forward:   6%|▌         | 39/675 [04:23<1:09:26,  6.55s/sample]Forward:   6%|▌         | 40/675 [04:26<57:44,  5.46s/sample]  Forward:   6%|▌         | 41/675 [04:35<1:06:28,  6.29s/sample]Forward:   6%|▌         | 42/675 [04:40<1:03:32,  6.02s/sample]Forward:   6%|▋         | 43/675 [04:49<1:13:58,  7.02s/sample]Forward:   7%|▋         | 44/675 [04:52<1:00:05,  5.71s/sample]Forward:   7%|▋         | 45/675 [05:01<1:09:21,  6.61s/sample]Forward:   7%|▋         | 46/675 [05:03<57:12,  5.46s/sample]  Forward:   7%|▋         | 47/675 [05:12<1:06:16,  6.33s/sample]Forward:   7%|▋         | 48/675 [05:14<54:29,  5.22s/sample]  Forward:   7%|▋         | 49/675 [05:25<1:10:33,  6.76s/sample]Forward:   7%|▋         | 50/675 [05:27<57:29,  5.52s/sample]  Forward:   8%|▊         | 51/675 [05:36<1:07:16,  6.47s/sample]Forward:   8%|▊         | 52/675 [05:39<56:01,  5.40s/sample]  Forward:   8%|▊         | 53/675 [05:48<1:08:01,  6.56s/sample]Forward:   8%|▊         | 54/675 [05:51<55:29,  5.36s/sample]  Forward:   8%|▊         | 55/675 [05:59<1:05:04,  6.30s/sample]Forward:   8%|▊         | 56/675 [06:02<53:36,  5.20s/sample]  Forward:   8%|▊         | 57/675 [06:10<1:03:30,  6.17s/sample]Forward:   9%|▊         | 58/675 [06:13<52:28,  5.10s/sample]  Forward:   9%|▊         | 59/675 [06:21<1:02:56,  6.13s/sample]Forward:   9%|▉         | 60/675 [06:25<53:59,  5.27s/sample]  Forward:   9%|▉         | 61/675 [06:33<1:01:51,  6.04s/sample]Forward:   9%|▉         | 62/675 [06:35<51:25,  5.03s/sample]  Forward:   9%|▉         | 63/675 [06:44<1:03:43,  6.25s/sample]Forward:   9%|▉         | 64/675 [06:47<52:29,  5.15s/sample]  Forward:  10%|▉         | 65/675 [06:55<1:01:55,  6.09s/sample]Forward:  10%|▉         | 66/675 [06:58<51:51,  5.11s/sample]  Forward:  10%|▉         | 67/675 [07:06<1:01:55,  6.11s/sample]Forward:  10%|█         | 68/675 [07:09<51:10,  5.06s/sample]  Forward:  10%|█         | 69/675 [07:17<1:00:03,  5.95s/sample]Forward:  10%|█         | 70/675 [07:20<50:10,  4.98s/sample]  Forward:  11%|█         | 71/675 [07:28<59:44,  5.93s/sample]Forward:  11%|█         | 72/675 [07:31<49:29,  4.93s/sample]Forward:  11%|█         | 73/675 [07:35<49:11,  4.90s/sample]Forward:  11%|█         | 74/675 [07:38<43:13,  4.32s/sample]Forward:  11%|█         | 75/675 [07:43<43:22,  4.34s/sample]Forward:  11%|█▏        | 76/675 [07:46<38:55,  3.90s/sample]Forward:  11%|█▏        | 77/675 [07:50<40:12,  4.03s/sample]Forward:  12%|█▏        | 78/675 [07:53<37:09,  3.73s/sample]Forward:  12%|█▏        | 79/675 [07:57<38:58,  3.92s/sample]Forward:  12%|█▏        | 80/675 [08:01<36:57,  3.73s/sample]Forward:  12%|█▏        | 81/675 [08:05<38:58,  3.94s/sample]Forward:  12%|█▏        | 82/675 [08:08<36:48,  3.73s/sample]Forward:  12%|█▏        | 83/675 [08:13<39:53,  4.04s/sample]Forward:  12%|█▏        | 84/675 [08:16<37:38,  3.82s/sample]Forward:  13%|█▎        | 85/675 [08:21<39:38,  4.03s/sample]Forward:  13%|█▎        | 86/675 [08:24<36:52,  3.76s/sample]Forward:  13%|█▎        | 87/675 [08:29<39:43,  4.05s/sample]Forward:  13%|█▎        | 88/675 [08:32<37:02,  3.79s/sample]Forward:  13%|█▎        | 89/675 [08:37<40:04,  4.10s/sample]Forward:  13%|█▎        | 90/675 [08:40<37:50,  3.88s/sample]Forward:  13%|█▎        | 91/675 [08:45<40:50,  4.20s/sample]Forward:  14%|█▎        | 92/675 [08:50<41:34,  4.28s/sample]Forward:  14%|█▍        | 93/675 [08:54<42:48,  4.41s/sample]
